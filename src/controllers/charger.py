@@ -31,17 +31,17 @@ class ChargeBoxController:
         except NoResultFound as err:
             raise ChargeBoxDoesNotExistError('ChargeBox Does Not Exist in Database')
 
-    def get_connector_status(self, connector_pk : int, buffer : float = 10.0) -> ConnectorStates:
+    def get_connector_status(self, connector_pk : int, buffer : Optional[float] = None) -> ConnectorStates:
         try:
-            time.sleep(buffer)
+            time.sleep(buffer) if buffer else None
             status =  self.database.query(ConnectorStatusModel, connector_pk=connector_pk, order_by=desc(ConnectorStatusModel.status_timestamp), first=True)
             return ConnectorStates(value=status.status)      
         except NoResultFound as err:
             raise ChargeBoxConnectorDoesNotExistError('ChargeBox Connector Does Not Exist in Database')
 
-    def get_connector_status_with_chargebox_id(self, charge_box_id : str, connector_id : Optional[int] = None) -> ConnectorStates:
+    def get_connector_status_with_chargebox_id(self, charge_box_id : str, connector_id : Optional[int] = None, buffer : Optional[float] = None) -> ConnectorStates:
         charge_box_obj = self.get_charge_box_with_id(charge_box_id=charge_box_id)
-        return self.get_connector_status(connector_pk=charge_box_obj.connector_id_to_pk_dict[connector_id])
+        return self.get_connector_status(connector_pk=charge_box_obj.connector_id_to_pk_dict[connector_id], buffer=buffer)
 
 
   

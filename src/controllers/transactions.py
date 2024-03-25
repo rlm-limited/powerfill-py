@@ -22,7 +22,7 @@ class TransactionsController:
         transactions = self.database.query(TransactionModel, limit=limit, )
         return transactions
 
-    def get_transactions_with_pk(self, transaction_pk : int) -> TransactionModel:
+    def get_transaction_with_pk(self, transaction_pk : int) -> TransactionModel:
         try:
             return self.database.get(TransactionModel, transaction_pk=transaction_pk)
         except NoResultFound:
@@ -35,11 +35,11 @@ class TransactionsController:
             raise UnableToFindTransactionError(f'Unable to find transaction with id_tag: {id_tag}')
         
 
-    def remote_start(self, charge_box_id : str, energy : Optional[int] = None, connector_id : Optional[str] = None, id_tag : Optional[str] = None):
+    async def remote_start(self, charge_box_id : str, energy : Optional[int] = None, connector_id : Optional[str] = None, id_tag : Optional[str] = None):
         try:
             #Pre-Check to see if Charger is Available on the Connector Level
-            tag = self.ocpp_tag.get_tag_with_id(id_tag=id_tag)
-            charge_box = self.chargebox.get_charge_box_with_id(charge_box_id=charge_box_id)
+            tag = await self.ocpp_tag.get_tag_with_id(id_tag=id_tag)
+            charge_box = await self.chargebox.get_charge_box_with_id(charge_box_id=charge_box_id)
 
             pre_charge_box_status = self.chargebox.get_connector_status_with_chargebox_id(charge_box_id=charge_box.charge_box_id, connector_id=connector_id)
 
@@ -54,7 +54,7 @@ class TransactionsController:
                 raise InvalidWebRequestReturnCode(f'Invalid Web Request Return Code: {response.status_code}')
             
             #Check if the connect is Preparing Mode
-            post_charge_box_status = self.chargebox.get_connector_status(charge_box.connector_id_to_pk_dict[connector_id])
+            post_charge_box_status = self.chargebox.get_connector_status(charge_box.connector_id_to_pk_dict[connector_id], buffer=10)
 
             if post_charge_box_status!= ConnectorStates.PREPARING:
                 raise RemoteStartFailedError(f'Remote Start Failed: {charge_box.charge_box_id}')
@@ -70,17 +70,21 @@ class TransactionsController:
             raise OCPPTagDoesNotExistError("OCPP Tag Does Not Exist in Database")
 
 
-    def remote_stop(self, transaction_id : int, charge_box_id : str):
+    async def remote_stop(self, transaction_id : int, charge_box_id : str):
         try: 
+            charge_box = await self.chargebox.get_charge_box_with_id(charge_box_id=charge_box_id)
+            transaction = await self.get_transaction_with_pk(transaction_pk=transaction_id)
             payload = {
-                'transactionId' : f'{transaction_id}',
-                'chargePointSelectList' : f'JSON%3B{charge_box_id}%3B-'
+                'transactionId' : f'{transaction.transaction_pk}',
+                'chargePointSelectList' : f'JSON%3B{charge_box.charge_box_id}%3B-'
                 }
-            response = requests.post(self.steve_url+'/operations/v1.6/RemoteStopTransaction/', data=payload, allow_redirects=False)
+            headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+            response = requests.post(url='http://ev.meshpower.co.rw:8180/steve/manager/operations/v1.6/RemoteStartTransaction', data=payload, headers=headers, allow_redirects=False)
 
             if response.status_code != 302:
-                pass
-            connector_state = ChargeBoxController.get_connector_status(connector_id=connector_id)
+                raise InvalidWebRequestReturnCode(f'Invalid Web Request Return Code: {response.status_code}')
+            
+            #connector_state = ChargeBoxController.get_connector_status(connector_id=connector_id)
 
 
 

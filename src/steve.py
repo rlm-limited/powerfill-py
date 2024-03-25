@@ -60,4 +60,4 @@ if __name__ == '__main__':
 
     profiler.stop()
     profiler.print()
-    profiler.write_html("bingo.html")
+    profiler.write_html("bingo.html", timeline=True, show_all=True)
