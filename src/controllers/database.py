@@ -15,12 +15,12 @@ class DBController:
         try:
             engine.connect()
             self.connected = True
-        except OperationalError:
-            raise OperationalError("Invalid Database URL; Could not connect to database!")
-        finally:
             self.SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+        except OperationalError as err:
+            raise OperationalError("Invalid Database URL; Could not connect to database!", params=database_url, orig=err)
 
-    def query(self, model : Base, limit : Optional[int] = None, one_or_none : bool = False, first : Optional[bool] = False, order_by : Optional[Any] = None, **kwargs) -> Union[Base, List[Base]]:
+            
+    def query(self, model : Any, limit : Optional[int] = None, one_or_none : bool = False, first : Optional[bool] = False, order_by : Optional[Any] = None, **kwargs) -> Union[Any, List[Any]]:
         try:
             with self.SessionLocal() as session:
                 query = session.query(model).filter_by(**kwargs).order_by(order_by).limit(limit)
@@ -32,7 +32,7 @@ class DBController:
         except NoResultFound as err:
             raise NoResultFound("No Result Found")
 
-    def exists(self, model : Base, **kwargs) -> Base:
+    def exists(self, model : Any, **kwargs) -> Any:
         try:
             with self.SessionLocal() as session:
                 query = session.query(model).filter_by(**kwargs)
@@ -40,11 +40,11 @@ class DBController:
         except MultipleResultsFound as err:
             raise MultipleResultsFound("Multiple Results Found", params=query, orig=err)
 
-    def get(self, model : Base, pk : Any) -> Base:
+    def get(self, model : Any, pk : Any) -> Any:
         with self.SessionLocal() as session:
-            return session.get(model, pk).one()
+            return session.get(model, pk)
 
-    def add(self, model : Base) -> Base:
+    def add(self, model : Any) -> Any:
         with self.SessionLocal() as session:
             try:
                 session.add(model)
