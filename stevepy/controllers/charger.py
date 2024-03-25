@@ -4,7 +4,7 @@ from sqlalchemy.exc import NoResultFound
 from sqlalchemy import desc
 from exceptions import ChargeBoxDoesNotExistError, ChargeBoxConnectorDoesNotExistError
 from enum import Enum
-from typing import Any, List, Optional
+from typing import Any, List, Optional, Union
 import time
 
 
@@ -19,15 +19,21 @@ class ConnectorStates(Enum):
 
 class ChargeBoxController:
 
-    def __init__(self, database : DBController) -> None:
-        self.database = database
+    def __init__(self, database : Union[DBController, str]) -> None:
+        if type(database) == DBController:
+            self.database = database
+        elif type(database) == str:
+            self.database = DBController(database)
+        else:
+            raise TypeError('Invalid Database Type')
     
     def get_all_chargeboxes(self, only_accepted : Optional[bool] = False) -> List[ChargeBoxModel]:
         return self.database.query(ChargeBoxModel)
 
-    def get_charge_box_with_id(self, charge_box_id : int) -> ChargeBoxModel:
+    def get_charge_box_with_id(self, charge_box_id : str) -> ChargeBoxModel:
         try:
-            return self.database.query(ChargeBoxModel, charge_box_id=charge_box_id, one_or_none=True)
+            charge_box = self.database.query(ChargeBoxModel, charge_box_id=charge_box_id, one_or_none=True)
+            return ChargeBoxModel(**charge_box)
         except NoResultFound as err:
             raise ChargeBoxDoesNotExistError('ChargeBox Does Not Exist in Database')
 

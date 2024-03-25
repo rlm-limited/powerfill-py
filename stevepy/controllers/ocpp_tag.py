@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional, List
+from typing import Optional, List, Union
 from models import OcppTagModel
 from controllers.database import DBController
 from exceptions import OCPPTagAlreadyExistsError, OCPPTagDoesNotExistError
@@ -9,8 +9,13 @@ from sqlalchemy.exc import IntegrityError, NoResultFound
 
 
 class OCPPTagController:
-    def __init__(self, database : DBController) -> None:
-        self.database = database
+    def __init__(self, database : Union[DBController, str]) -> None:
+        if type(database) == DBController:
+            self.database = database
+        elif type(database) == str:
+            self.database = DBController(database)
+        else:
+            raise TypeError('Invalid Database Type')
 
     def create_tag(self , id_tag: str, parent_id_tag: Optional[int] = None, expiry_date : Optional[datetime]  = None, note : Optional[str]  = None, max_active_transaction_count : int = 1) -> OcppTagModel:
         try:

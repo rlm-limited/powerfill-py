@@ -4,6 +4,9 @@ version = "1.0.10"
 description = "Steve OCPP Python SDK"
 authors = ["Arnaud Kayonga <a.kayonga@meshpower.co.rw>"]
 readme = "README.md"
+include = [
+    { path = "src", format = ["sdist", "wheel"] }
+]
 
 [tool.poetry.dependencies]
 python = "^3.8"

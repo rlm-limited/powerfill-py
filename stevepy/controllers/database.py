@@ -1,9 +1,8 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import OperationalError, IntegrityError, MultipleResultsFound, NoResultFound
-from sqlalchemy.ext.declarative import declarative_base as Base
-from sqlalchemy import desc
 from typing import Optional, Any, List, Union
+
 
 
 
@@ -17,10 +16,10 @@ class DBController:
             self.connected = True
             self.SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
         except OperationalError as err:
-            raise OperationalError("Invalid Database URL; Could not connect to database!", params=database_url, orig=err)
+            raise OperationalError("Invalid DataAny URL; Could not connect to dataAny!", params=database_url, orig=err)
 
             
-    def query(self, model : Any, limit : Optional[int] = None, one_or_none : bool = False, first : Optional[bool] = False, order_by : Optional[Any] = None, **kwargs) -> Union[Any, List[Any]]:
+    def query(self, model : Any, limit : Optional[int] = None, one_or_none : bool = False, first : Optional[bool] = False, order_by : Optional[Any] = None, **kwargs) -> Any:
         try:
             with self.SessionLocal() as session:
                 query = session.query(model).filter_by(**kwargs).order_by(order_by).limit(limit)
@@ -40,7 +39,7 @@ class DBController:
         except MultipleResultsFound as err:
             raise MultipleResultsFound("Multiple Results Found", params=query, orig=err)
 
-    def get(self, model : Any, pk : Any) -> Any:
+    def get(self, model : Any, pk : int) -> Any:
         with self.SessionLocal() as session:
             return session.get(model, pk)
 

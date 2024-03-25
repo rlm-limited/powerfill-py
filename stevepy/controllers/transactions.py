@@ -1,4 +1,4 @@
-from typing import Optional, List, Union
+from typing import Optional, List, Union, Any
 from controllers.database import DBController
 from controllers.charger import ChargeBoxController, ConnectorStates
 from controllers.ocpp_tag import OCPPTagController
@@ -11,11 +11,16 @@ from datetime import datetime, timedelta
 
 
 class TransactionsController:
-    def __init__(self, database : DBController, steve_url : str, chargebox : ChargeBoxController, ocpp_tag : OCPPTagController) -> None:
-        self.database = database
+    def __init__(self, database : Union[DBController, str], steve_url : str) -> None:
+        if type(database) == DBController:
+            self.database = database
+        elif type(database) == str:
+            self.database = DBController(database)
+        else:
+            raise TypeError('Invalid Database Type')
         self.steve_url = steve_url
-        self.chargebox = chargebox
-        self.ocpp_tag = ocpp_tag
+        self.chargebox = ChargeBoxController(self.database)
+        self.ocpp_tag = OCPPTagController(self.database)
 
     
     def get_all_transactions(self, limit : Optional[int] = None, only_active : Optional[bool] = False) -> List[TransactionModel]:
@@ -24,18 +29,18 @@ class TransactionsController:
 
     def get_transaction_with_pk(self, transaction_pk : int) -> TransactionModel:
         try:
-            return self.database.get(TransactionModel, transaction_pk=transaction_pk)
+            return self.database.get(TransactionModel, pk=transaction_pk)
         except NoResultFound:
             raise UnableToFindTransactionError(f'Unable to find transaction with Primary Key: {transaction_pk}')
 
-    def get_active_transaction_with_id_tag(self, id_tag : str) -> TransactionModel:
+    def get_active_transaction_with_id_tag(self, id_tag : str) -> Union[TransactionModel, Any]:
         try:
             return self.database.query(TransactionModel, id_tag=id_tag, stop_timestamp=None, one_or_none=True)
         except NoResultFound:
             raise UnableToFindTransactionError(f'Unable to find transaction with id_tag: {id_tag}')
         
 
-    async def remote_start(self, charge_box_id : str, energy : Optional[int] = None, connector_id : Optional[str] = None, id_tag : Optional[str] = None):
+    async def remote_start(self, charge_box_id : str, connector_id : int, id_tag : str, energy_kwh : Optional[float] = None):
         try:
             #Pre-Check to see if Charger is Available on the Connector Level
             tag = await self.ocpp_tag.get_tag_with_id(id_tag=id_tag)
