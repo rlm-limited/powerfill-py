@@ -1,0 +1,99 @@
+from typing import Optional, List, Union
+from controllers.database import DBController
+from controllers.charger import ChargeBoxController, ConnectorStates
+from controllers.ocpp_tag import OCPPTagController
+from exceptions import ChargeBoxConnectorNotAvailableError, OCPPTagDoesNotExistError, InvalidWebRequestReturnCode, RequestTimeoutError, HTTPConnectionError, UnableToFindTransactionError, RemoteStartFailedError, RemoteStopFailedError
+from sqlalchemy.exc import NoResultFound
+import requests
+from requests.exceptions import Timeout, ConnectionError
+from models import TransactionModel
+from datetime import datetime, timedelta
+
+
+class TransactionsController:
+    def __init__(self, database : DBController, steve_url : str, chargebox : ChargeBoxController, ocpp_tag : OCPPTagController) -> None:
+        self.database = database
+        self.steve_url = steve_url
+        self.chargebox = chargebox
+        self.ocpp_tag = ocpp_tag
+
+    
+    def get_all_transactions(self, limit : Optional[int] = None, only_active : Optional[bool] = False) -> List[TransactionModel]:
+        transactions = self.database.query(TransactionModel, limit=limit, )
+        return transactions
+
+    def get_transactions_with_pk(self, transaction_pk : int) -> TransactionModel:
+        try:
+            return self.database.get(TransactionModel, transaction_pk=transaction_pk)
+        except NoResultFound:
+            raise UnableToFindTransactionError(f'Unable to find transaction with Primary Key: {transaction_pk}')
+
+    def get_active_transaction_with_id_tag(self, id_tag : str) -> TransactionModel:
+        try:
+            return self.database.query(TransactionModel, id_tag=id_tag, stop_timestamp=None, one_or_none=True)
+        except NoResultFound:
+            raise UnableToFindTransactionError(f'Unable to find transaction with id_tag: {id_tag}')
+        
+
+    def remote_start(self, charge_box_id : str, energy : Optional[int] = None, connector_id : Optional[str] = None, id_tag : Optional[str] = None):
+        try:
+            #Pre-Check to see if Charger is Available on the Connector Level
+            tag = self.ocpp_tag.get_tag_with_id(id_tag=id_tag)
+            charge_box = self.chargebox.get_charge_box_with_id(charge_box_id=charge_box_id)
+
+            pre_charge_box_status = self.chargebox.get_connector_status_with_chargebox_id(charge_box_id=charge_box.charge_box_id, connector_id=connector_id)
+
+            if pre_charge_box_status != ConnectorStates.AVAILABLE:
+                raise ChargeBoxConnectorNotAvailableError('Charger is not available on this connector')
+            
+            headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+            payload = f'chargePointSelectList=JSON%3B{charge_box.charge_box_id}%3B-&idTag={tag.id_tag}&connectorId={connector_id}'
+            response = requests.post(url='http://ev.meshpower.co.rw:8180/steve/manager/operations/v1.6/RemoteStartTransaction', data=payload, headers=headers, allow_redirects=False, timeout=100)
+
+            if response.status_code != 302:
+                raise InvalidWebRequestReturnCode(f'Invalid Web Request Return Code: {response.status_code}')
+            
+            #Check if the connect is Preparing Mode
+            post_charge_box_status = self.chargebox.get_connector_status(charge_box.connector_id_to_pk_dict[connector_id])
+
+            if post_charge_box_status!= ConnectorStates.PREPARING:
+                raise RemoteStartFailedError(f'Remote Start Failed: {charge_box.charge_box_id}')
+            
+            #transaction = self.get_active_transaction_with_id_tag(id_tag=tag.id_tag)
+
+            
+        except ConnectionError as err:
+            raise HTTPConnectionError('HTTP Connection Error')
+        except Timeout as err:
+            raise RequestTimeoutError('Time Out Error')
+        except OCPPTagDoesNotExistError as err:
+            raise OCPPTagDoesNotExistError("OCPP Tag Does Not Exist in Database")
+
+
+    def remote_stop(self, transaction_id : int, charge_box_id : str):
+        try: 
+            payload = {
+                'transactionId' : f'{transaction_id}',
+                'chargePointSelectList' : f'JSON%3B{charge_box_id}%3B-'
+                }
+            response = requests.post(self.steve_url+'/operations/v1.6/RemoteStopTransaction/', data=payload, allow_redirects=False)
+
+            if response.status_code != 302:
+                pass
+            connector_state = ChargeBoxController.get_connector_status(connector_id=connector_id)
+
+
+
+        except ConnectionError:
+            raise requests.exceptions.ConnectionError('')
+        except requests.exceptions.Timeout:
+            raise requests.exceptions.Timeout('')
+        finally:
+            pass
+
+
+    
+
+    
+    
+

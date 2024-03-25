@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "stevepy"
+version = "1.0.10"
+description = "Steve OCPP Python SDK"
+authors = ["Arnaud Kayonga <a.kayonga@meshpower.co.rw>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+requests = "^2.31.0"
+bs4 = "^0.0.2"
+sqlalchemy = "^2.0.28"
+mariadb = "^1.1.10"
+
+[tool.poetry.group.dev.dependencies]
+debugpy = "^1.8.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
