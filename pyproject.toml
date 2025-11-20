@@ -1,23 +1,17 @@
-[tool.poetry]
-name = "stevepy"
-version = "1.0.10"
-description = "Steve OCPP Python SDK"
-authors = ["Arnaud Kayonga <a.kayonga@meshpower.co.rw>"]
+[project]
+name = "powerfill-py"
+version = "0.1.0"
+description = "Powerfill Python SDK"
 readme = "README.md"
-include = [
-    { path = "src", format = ["sdist", "wheel"] }
+requires-python = ">=3.12"
+authors = ["Arnaud Kayonga <a.kayonga@meshpower.co.rw>"]
+dependencies = []
+
+[dependency-groups]
+ci = [
+    "python-semantic-release>=10.5.2",
 ]
-
-[tool.poetry.dependencies]
-python = "^3.8"
-requests = "^2.31.0"
-bs4 = "^0.0.2"
-sqlalchemy = "^2.0.28"
-mariadb = "^1.1.10"
-
-[tool.poetry.group.dev.dependencies]
-debugpy = "^1.8.1"
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+docs = [
+    "mkdocs>=1.6.1",
+    "mkdocs-material>=9.7.0",
+]
