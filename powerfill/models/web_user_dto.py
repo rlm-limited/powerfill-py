@@ -1,0 +1,79 @@
+from __future__ import annotations
+
+from collections.abc import Mapping
+from typing import Any, TypeVar
+
+from attrs import define as _attrs_define
+from attrs import field as _attrs_field
+
+from ..types import UNSET, Unset
+
+T = TypeVar("T", bound="WebUserDto")
+
+
+@_attrs_define
+class WebUserDto:
+    """
+    Attributes:
+        email (str | Unset):
+        enabled (bool | Unset):
+        web_user_pk (int | Unset):
+    """
+
+    email: str | Unset = UNSET
+    enabled: bool | Unset = UNSET
+    web_user_pk: int | Unset = UNSET
+    additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
+
+    def to_dict(self) -> dict[str, Any]:
+        email = self.email
+
+        enabled = self.enabled
+
+        web_user_pk = self.web_user_pk
+
+        field_dict: dict[str, Any] = {}
+        field_dict.update(self.additional_properties)
+        field_dict.update({})
+        if email is not UNSET:
+            field_dict["email"] = email
+        if enabled is not UNSET:
+            field_dict["enabled"] = enabled
+        if web_user_pk is not UNSET:
+            field_dict["webUserPk"] = web_user_pk
+
+        return field_dict
+
+    @classmethod
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        d = dict(src_dict)
+        email = d.pop("email", UNSET)
+
+        enabled = d.pop("enabled", UNSET)
+
+        web_user_pk = d.pop("webUserPk", UNSET)
+
+        web_user_dto = cls(
+            email=email,
+            enabled=enabled,
+            web_user_pk=web_user_pk,
+        )
+
+        web_user_dto.additional_properties = d
+        return web_user_dto
+
+    @property
+    def additional_keys(self) -> list[str]:
+        return list(self.additional_properties.keys())
+
+    def __getitem__(self, key: str) -> Any:
+        return self.additional_properties[key]
+
+    def __setitem__(self, key: str, value: Any) -> None:
+        self.additional_properties[key] = value
+
+    def __delitem__(self, key: str) -> None:
+        del self.additional_properties[key]
+
+    def __contains__(self, key: str) -> bool:
+        return key in self.additional_properties

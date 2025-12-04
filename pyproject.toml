@@ -7,7 +7,11 @@ requires-python = ">=3.12"
 authors = ["Arnaud Kayonga <a.kayonga@meshpower.co.rw>"]
 dependencies = [
     "aiohttp>=3.13.2",
+    "attr>=0.3.2",
+    "httpx>=0.28.1",
+    "openapi-python-client>=0.27.1",
     "pydantic>=2.12.4",
+    "python-dateutil>=2.9.0.post0",
 ]
 
 [dependency-groups]
@@ -84,3 +88,9 @@ insecure = false
 [tool.semantic_release.publish]
 dist_glob_patterns = ["dist/*"]
 upload_to_vcs_release = true
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.lint]
+select = ["F", "I", "UP"]
