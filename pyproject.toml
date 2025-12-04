@@ -4,7 +4,9 @@ version = "0.1.0"
 description = "Powerfill Python SDK"
 readme = "README.md"
 requires-python = ">=3.12"
-authors = ["Arnaud Kayonga <a.kayonga@meshpower.co.rw>"]
+authors = [
+    { name = "Arnaud Kayonga", email = "a.kayonga@meshpower.co.rw" }
+]
 dependencies = [
     "aiohttp>=3.13.2",
     "attr>=0.3.2",
