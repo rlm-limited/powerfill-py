@@ -1,4 +1,4 @@
-# powerfill-rest-api-documentation-client
+# Powerfill REST API Documentation Client
 A client library for accessing Powerfill REST API Documentation
 
 ## Usage
