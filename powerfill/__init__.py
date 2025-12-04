@@ -1,4 +1,4 @@
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 """A client library for accessing Powerfill REST API Documentation"""
 
 from .client import AuthenticatedClient, Client
