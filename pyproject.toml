@@ -1,7 +1,3 @@
-[build-system]
-requires = ["uv", "setuptools", "wheel"]
-build-backend = "uv"
-
 [project]
 name = "powerfill-py"
 version = "0.1.0"
