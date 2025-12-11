@@ -105,7 +105,7 @@ class OcppTagOverview:
 
         _expiry_date = d.pop("expiryDate", UNSET)
         expiry_date: datetime.datetime | Unset
-        if isinstance(_expiry_date, Unset):
+        if isinstance(_expiry_date, Unset) or _expiry_date is None:
             expiry_date = UNSET
         else:
             expiry_date = isoparse(_expiry_date)
