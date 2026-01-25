@@ -2,6 +2,22 @@
 
 <!-- version list -->
 
+## v0.1.2 (2026-01-25)
+
+### Bug Fixes
+
+- Check expiry date on OcppTagOverview
+  ([`dda0ed0`](https://github.com/rlm-limited/powerfill-py/commit/dda0ed0a1b744b775ad362a02286334d34afb1ae))
+
+- Update readme import syntax
+  ([`64a0b7e`](https://github.com/rlm-limited/powerfill-py/commit/64a0b7e6cea5cfbde5c94594b2b9ca9009dc5409))
+
+### Documentation
+
+- Add vscode settings
+  ([`a7bd100`](https://github.com/rlm-limited/powerfill-py/commit/a7bd1004b35a9450216828dc70fc7de90951f02f))
+
+
 ## v0.1.1 (2025-12-04)
 
 ### Bug Fixes
