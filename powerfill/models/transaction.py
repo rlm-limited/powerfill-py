@@ -142,7 +142,7 @@ class Transaction:
 
         _stop_event_actor = d.pop("stopEventActor", UNSET)
         stop_event_actor: TransactionStopEventActor | Unset
-        if isinstance(_stop_event_actor, Unset):
+        if isinstance(_stop_event_actor, Unset) or _stop_event_actor is None:
             stop_event_actor = UNSET
         else:
             stop_event_actor = check_transaction_stop_event_actor(_stop_event_actor)
