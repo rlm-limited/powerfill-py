@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.1.4 (2026-02-03)
+
+### Bug Fixes
+
+- Transaction stop timestamp to None
+  ([`c93c522`](https://github.com/rlm-limited/powerfill-py/commit/c93c52241b9bcf2387c3f37c1b875c8f5409825e))
+
+
 ## v0.1.3 (2026-02-03)
 
 ### Bug Fixes
