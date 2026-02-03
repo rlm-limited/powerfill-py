@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.1.3 (2026-02-03)
+
+### Bug Fixes
+
+- Transaction stop event factor model
+  ([`98ac357`](https://github.com/rlm-limited/powerfill-py/commit/98ac357cbe72306176b022870ff59d40f043e552))
+
+
 ## v0.1.2 (2026-01-25)
 
 ### Bug Fixes
