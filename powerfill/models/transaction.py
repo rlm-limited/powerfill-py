@@ -133,7 +133,7 @@ class Transaction:
 
         _start_timestamp = d.pop("startTimestamp", UNSET)
         start_timestamp: datetime.datetime | Unset
-        if isinstance(_start_timestamp, Unset):
+        if isinstance(_start_timestamp, Unset) or _start_timestamp is None:
             start_timestamp = UNSET
         else:
             start_timestamp = isoparse(_start_timestamp)
